@@ -222,9 +222,9 @@ function renderTable(data) {
         <th>公升</th>
         <th>原價</th>
         <th>折扣</th>
+        <th>總差額</th>
         <th>原價差</th>
         <th>折扣差</th>
-        <th>總差額</th>
     </tr>`;
 
     for (let r of data) {
@@ -233,9 +233,9 @@ function renderTable(data) {
             <td>${r.l.toFixed(2)}</td>
             <td>${r.original.toFixed(3)}</td>
             <td>${r.discount.toFixed(3)}</td>
+            <td>${r.totalDiff.toFixed(3)}</td>
             <td>${r.originalDiff.toFixed(3)}</td>
             <td>${r.discountDiff.toFixed(3)}</td>
-            <td>${r.totalDiff.toFixed(3)}</td>
         </tr>`;
     }
 
