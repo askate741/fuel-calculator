@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <title>台亞自助加油計算器</title>
 
+<link rel="manifest" href="manifest.json">
+
 <style>
 body{
     font-family: Arial, sans-serif;
@@ -58,8 +60,7 @@ th{
 <br><br>
 
 油品：
-<select id="fuelType" onchange="updatePrice()">
-</select>
+<select id="fuelType" onchange="updatePrice()"></select>
 
 油價：
 <input type="number" id="price" step="0.1">
@@ -77,11 +78,11 @@ function updatePrice() {
 }
 
 async function loadOilPrice() {
-
     try {
 
-        const res = await fetch("oilprice.json?t=" + Date.now());
-        const res = await fetch(url, { cache: "no-store" });
+        const res = await fetch("oilprice.json?t=" + Date.now(), {
+            cache: "no-store"
+        });
 
         if (!res.ok) {
             throw new Error("找不到 oilprice.json");
@@ -108,12 +109,11 @@ async function loadOilPrice() {
 
     } catch (e) {
 
-    document.getElementById("priceInfo").innerHTML =
-        "油價資料載入失敗<br>" +
-        e.toString();
+        document.getElementById("priceInfo").innerHTML =
+            "油價資料載入失敗<br>" + e.toString();
 
-    console.error(e);
-}
+        console.error(e);
+    }
 }
 
 let rowsData = [];
@@ -137,11 +137,9 @@ function calc() {
         let original = Number((price * l).toFixed(3));
         let discount = Number((1.2 * l).toFixed(3));
 
-        // 原價進位差額
         let originalTargetInt = Math.round(original);
         let originalDiff = original - originalTargetInt;
 
-        // 折扣進位差額
         let firstDecimal = Math.floor((discount % 1) * 10);
 
         let discountDiff;
@@ -152,7 +150,6 @@ function calc() {
             discountDiff = Math.floor(discount) - discount;
         }
 
-        // 差額加總
         let totalDiff = discountDiff + originalDiff;
 
         rowsData.push({
@@ -215,6 +212,13 @@ window.onload = function() {
     loadOilPrice();
 };
 
+</script>
+
+<!-- PWA register -->
+<script>
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("service-worker.js");
+}
 </script>
 
 </body>
