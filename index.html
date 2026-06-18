@@ -80,29 +80,30 @@ function updatePrice() {
 async function loadOilPrice() {
     try {
 
-        const res = await fetch("oilprice.json?t=" + Date.now(), {
+        const res = await fetch("https://sweet-river-af7d.askate741.workers.dev/", {
             cache: "no-store"
         });
 
         if (!res.ok) {
-            throw new Error("找不到 oilprice.json");
+            throw new Error("API 請求失敗");
         }
 
         const data = await res.json();
 
         document.getElementById("fuelType").innerHTML = `
-            <option value="${data["92"]}">92無鉛</option>
-            <option value="${data["95"]}" selected>95無鉛</option>
-            <option value="${data["98"]}">98無鉛</option>
-            <option value="${data["diesel"]}">超級柴油</option>
+            <option value="${data.gasoline["92"]}">92無鉛</option>
+            <option value="${data.gasoline["95"]}" selected>95無鉛</option>
+            <option value="${data.gasoline["98"]}">98無鉛</option>
+            <option value="${data.diesel}">超級柴油</option>
         `;
 
         document.getElementById("priceInfo").innerHTML = `
             <b>油價更新日：</b>${data.updateDate}<br>
-            92無鉛：${data["92"]} 元<br>
-            95無鉛：${data["95"]} 元<br>
-            98無鉛：${data["98"]} 元<br>
-            超級柴油：${data["diesel"]} 元
+            92無鉛：${data.gasoline["92"]} 元<br>
+            95無鉛：${data.gasoline["95"]} 元<br>
+            98無鉛：${data.gasoline["98"]} 元<br>
+            超級柴油：${data.diesel} 元<br>
+            <small>來源：${data.source ?? "API"}</small>
         `;
 
         updatePrice();
