@@ -145,10 +145,10 @@ async function loadOilPrice() {
         const data = await res.json();
 
         document.getElementById("fuelType").innerHTML = `
-            <option value="${data.gasoline["92"]}">92無鉛</option>
-            <option value="${data.gasoline["95"]}" selected>95無鉛</option>
-            <option value="${data.gasoline["98"]}">98無鉛</option>
-            <option value="${data.diesel}">超級柴油</option>
+        <option value="${data.gasoline["92"]}" selected>92無鉛</option>
+        <option value="${data.gasoline["95"]}">95無鉛</option>
+        <option value="${data.gasoline["98"]}">98無鉛</option>
+        <option value="${data.diesel}">超級柴油</option>
         `;
 
         document.getElementById("priceInfo").innerHTML = `
