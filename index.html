@@ -107,11 +107,12 @@ async function loadOilPrice() {
 
     } catch (e) {
 
-        document.getElementById("priceInfo").innerHTML =
-            "油價資料載入失敗";
+    document.getElementById("priceInfo").innerHTML =
+        "油價資料載入失敗<br>" +
+        e.toString();
 
-        console.error(e);
-    }
+    console.error(e);
+}
 }
 
 let rowsData = [];
