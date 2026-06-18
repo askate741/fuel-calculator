@@ -10,27 +10,71 @@
 body{
     font-family: Arial, sans-serif;
     margin:20px;
+    background:#f4f6f9;
 }
 
-input,select{
-    padding:8px;
-    width:120px;
+/* ====== 上方工具列 ====== */
+.top-bar{
+    display:flex;
+    gap:20px;
+    flex-wrap:wrap;
+    align-items:flex-start;
+}
+
+/* ====== 油價卡片 ====== */
+.price-box{
+    border:1px solid #ddd;
+    padding:15px;
+    border-radius:12px;
+    background:#ffffff;
+    box-shadow:0 2px 8px rgba(0,0,0,0.08);
+    min-width:220px;
+}
+
+/* ====== 按鈕區 ====== */
+.btn-group{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
 }
 
 button{
-    padding:8px 15px;
-    margin-right:5px;
+    padding:10px 15px;
     cursor:pointer;
+    border:none;
+    border-radius:8px;
+    background:#1976d2;
+    color:white;
+    font-weight:bold;
+    transition:0.2s;
 }
 
+button:hover{
+    background:#125aa0;
+}
+
+/* ====== input ====== */
+input,select{
+    padding:8px;
+    width:140px;
+    border-radius:6px;
+    border:1px solid #ccc;
+}
+
+/* ====== table ====== */
 table{
     border-collapse:collapse;
-    margin-top:15px;
+    margin-top:20px;
+    width:100%;
+    background:white;
+    border-radius:10px;
+    overflow:hidden;
+    box-shadow:0 2px 8px rgba(0,0,0,0.08);
 }
 
 th,td{
-    border:1px solid #ccc;
-    padding:5px 10px;
+    border-bottom:1px solid #eee;
+    padding:8px;
     text-align:right;
 }
 
@@ -38,12 +82,16 @@ th{
     background:#f0f0f0;
 }
 
-.price-box{
-    border:1px solid #ccc;
-    padding:10px;
+/* ====== 標題 ====== */
+h2{
     margin-bottom:15px;
-    display:inline-block;
-    background:#f9f9f9;
+}
+
+/* ====== 手機版 ====== */
+@media (max-width:600px){
+    .top-bar{
+        flex-direction:column;
+    }
 }
 </style>
 
@@ -51,26 +99,40 @@ th{
 
 <body>
 
-<h2>台亞自助加油計算器</h2>
+<h2>⛽ 台亞自助加油計算器</h2>
 
-<div class="price-box" id="priceInfo">
-    讀取最新油價中...
+<!-- ===== 上方區塊 ===== -->
+<div class="top-bar">
+
+    <!-- 按鈕 -->
+    <div class="btn-group">
+        <button onclick="calc()">計算</button>
+        <button onclick="sortTotal()">差額加總排序</button>
+    </div>
+
+    <!-- 油價 -->
+    <div class="price-box" id="priceInfo">
+        讀取最新油價中...
+    </div>
+
 </div>
 
-<br><br>
+<br>
 
+<!-- ===== 輸入區 ===== -->
 油品：
 <select id="fuelType" onchange="updatePrice()"></select>
 
 油價：
 <input type="number" id="price" step="0.1">
 
-<button onclick="calc()">計算</button>
-<button onclick="sortTotal()">差額加總排序</button>
+<br><br>
 
 <div id="result"></div>
 
 <script>
+
+const API_URL = "https://sweet-river-af7d.askate741.workers.dev/";
 
 function updatePrice() {
     document.getElementById("price").value =
@@ -80,14 +142,7 @@ function updatePrice() {
 async function loadOilPrice() {
     try {
 
-        const res = await fetch("https://sweet-river-af7d.askate741.workers.dev/", {
-            cache: "no-store"
-        });
-
-        if (!res.ok) {
-            throw new Error("API 請求失敗");
-        }
-
+        const res = await fetch(API_URL, { cache: "no-store" });
         const data = await res.json();
 
         document.getElementById("fuelType").innerHTML = `
@@ -98,22 +153,22 @@ async function loadOilPrice() {
         `;
 
         document.getElementById("priceInfo").innerHTML = `
-            <b>油價更新日：</b>${data.updateDate}<br>
-            92無鉛：${data.gasoline["92"]} 元<br>
-            95無鉛：${data.gasoline["95"]} 元<br>
-            98無鉛：${data.gasoline["98"]} 元<br>
-            超級柴油：${data.diesel} 元<br>
+            <b>⛽ 油價更新日</b><br>
+            📅 ${data.updateDate}<br><br>
+
+            🟡 92無鉛：${data.gasoline["92"]} 元<br>
+            🟠 95無鉛：${data.gasoline["95"]} 元<br>
+            🔴 98無鉛：${data.gasoline["98"]} 元<br>
+            ⚫ 柴油：${data.diesel} 元<br><br>
+
             <small>來源：${data.source ?? "API"}</small>
         `;
 
         updatePrice();
 
     } catch (e) {
-
         document.getElementById("priceInfo").innerHTML =
-            "油價資料載入失敗<br>" + e.toString();
-
-        console.error(e);
+            "❌ 油價載入失敗<br>" + e;
     }
 }
 
@@ -138,20 +193,14 @@ function calc() {
         let original = Number((price * l).toFixed(3));
         let discount = Number((1.2 * l).toFixed(3));
 
-        let originalTargetInt = Math.round(original);
-        let originalDiff = original - originalTargetInt;
+        let originalDiff = original - Math.round(original);
 
         let firstDecimal = Math.floor((discount % 1) * 10);
 
-        let discountDiff;
-
-        if (firstDecimal >= 5) {
-            discountDiff = Math.ceil(discount) - discount;
-        } else {
-            discountDiff = Math.floor(discount) - discount;
-        }
-
-        let totalDiff = discountDiff + originalDiff;
+        let discountDiff =
+            firstDecimal >= 5
+                ? Math.ceil(discount) - discount
+                : Math.floor(discount) - discount;
 
         rowsData.push({
             l,
@@ -159,7 +208,7 @@ function calc() {
             discount,
             originalDiff,
             discountDiff,
-            totalDiff
+            totalDiff: discountDiff + originalDiff
         });
     }
 
@@ -171,23 +220,23 @@ function renderTable(data) {
     let html = `
     <table>
     <tr>
-        <th>公升數</th>
-        <th>價格</th>
+        <th>公升</th>
+        <th>原價</th>
         <th>折扣</th>
-        <th>原價進位差額</th>
-        <th>折扣進位差額</th>
-        <th>差額加總</th>
+        <th>原價差</th>
+        <th>折扣差</th>
+        <th>總差額</th>
     </tr>`;
 
-    for (let row of data) {
+    for (let r of data) {
         html += `
         <tr>
-            <td>${row.l.toFixed(2)}</td>
-            <td>${row.original.toFixed(3)}</td>
-            <td>${row.discount.toFixed(3)}</td>
-            <td>${row.originalDiff.toFixed(3)}</td>
-            <td>${row.discountDiff.toFixed(3)}</td>
-            <td>${row.totalDiff.toFixed(3)}</td>
+            <td>${r.l.toFixed(2)}</td>
+            <td>${r.original.toFixed(3)}</td>
+            <td>${r.discount.toFixed(3)}</td>
+            <td>${r.originalDiff.toFixed(3)}</td>
+            <td>${r.discountDiff.toFixed(3)}</td>
+            <td>${r.totalDiff.toFixed(3)}</td>
         </tr>`;
     }
 
@@ -198,28 +247,17 @@ function renderTable(data) {
 
 function sortTotal() {
 
-    rowsData.sort((a, b) => {
-        return sortAsc
-            ? a.totalDiff - b.totalDiff
-            : b.totalDiff - a.totalDiff;
-    });
+    rowsData.sort((a, b) =>
+        sortAsc ? a.totalDiff - b.totalDiff : b.totalDiff - a.totalDiff
+    );
 
     sortAsc = !sortAsc;
 
     renderTable(rowsData);
 }
 
-window.onload = function() {
-    loadOilPrice();
-};
+window.onload = loadOilPrice;
 
-</script>
-
-<!-- PWA register -->
-<script>
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("service-worker.js");
-}
 </script>
 
 </body>
