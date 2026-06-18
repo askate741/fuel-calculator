@@ -2,7 +2,13 @@
 <html>
 <head>
 <meta charset="utf-8">
+
 <title>台亞自助加油計算器</title>
+
+<!-- PWA 必備 -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2196f3">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 body{
@@ -62,27 +68,25 @@ function calc() {
     rowsData = [];
 
     for (let i = 100; i <= 700; i++) {
-	 
-	let l = i / 100;
+
+        let l = i / 100;
 
         let original = Number((price * l).toFixed(3));
-	let discount = Number((1.2 * l).toFixed(3));
-	
-	// 原價進位差額
-        let originalTargetInt = Math.round(original);
-	let originalDiff = original - originalTargetInt;
+        let discount = Number((1.2 * l).toFixed(3));
 
-        // 折扣進位差額
+        let originalTargetInt = Math.round(original);
+        let originalDiff = original - originalTargetInt;
+
         let firstDecimal = Math.floor((discount % 1) * 10);
 
-	let discountDiff;
+        let discountDiff;
 
-	if (firstDecimal >= 5) {
-    discountDiff = Math.ceil(discount) - discount;
-	} else {
-    discountDiff = Math.floor(discount) - discount;
-	}
-        // 差額加總
+        if (firstDecimal >= 5) {
+            discountDiff = Math.ceil(discount) - discount;
+        } else {
+            discountDiff = Math.floor(discount) - discount;
+        }
+
         let totalDiff = discountDiff + originalDiff;
 
         rowsData.push({
@@ -141,6 +145,13 @@ function sortTotal() {
     renderTable(rowsData);
 }
 
+</script>
+
+<!-- PWA Service Worker -->
+<script>
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./service-worker.js");
+}
 </script>
 
 </body>
