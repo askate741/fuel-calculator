@@ -80,7 +80,7 @@ async function loadOilPrice() {
 
     try {
 
-        const res = await fetch("./oilprice.json?t=" + Date.now());
+        const res = await fetch("oilprice.json?t=" + Date.now());
 
         if (!res.ok) {
             throw new Error("找不到 oilprice.json");
